@@ -1,0 +1,16 @@
+--------------------------------------------------------------------------------
+Processing file 'sample.py'
+ outputting to 'sample2.py'
+--------------------------------------------------------------------------------
+
+'sample.py' Line 59
+--------------------------------------------------------------------------------
+
+Renamed function 'tf.all_variables' to 'tf.global_variables'
+
+    Old: saver = tf.train.Saver(tf.all_variables())
+                                ~~~~~~~~~~~~~~~~    
+    New: saver = tf.train.Saver(tf.global_variables())
+                                ~~~~~~~~~~~~~~~~~~~    
+
+
