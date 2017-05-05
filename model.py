@@ -1,5 +1,5 @@
-import tensorflow as tf
-from tf.contrib.rnn import core_rnn_cell as rnn_cell
+import tensorflow as tf 
+from tensorflow.contrib.rnn import core_rnn_cell as rnn_cell
 
 import numpy as np
 import random
@@ -22,7 +22,7 @@ class Model():
 
     cell = cell_fn(args.rnn_size)
 
-    cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
+    cell = rnn_cell.MultiRNNCell([cell] * args.num_layers,state_is_tuple=True)
 
     if (infer == False and args.keep_prob < 1): # training mode
       cell = rnn_cell.DropoutWrapper(cell, output_keep_prob = args.keep_prob)
@@ -40,7 +40,8 @@ class Model():
       output_w = tf.get_variable("output_w", [args.rnn_size, NOUT])
       output_b = tf.get_variable("output_b", [NOUT])
 
-    inputs = tf.split(1, args.seq_length, self.input_data)
+    inputs = tf.split(self.input_data,args.seq_length,1)  
+    #inputs = tf.split(1, args.seq_length, self.input_data)
     inputs = [tf.squeeze(input_, [1]) for input_ in inputs]
 
     self.initial_input = np.zeros((args.batch_size, 5), dtype=np.float32)
@@ -69,10 +70,12 @@ class Model():
           if i > 0:
             tf.get_variable_scope().reuse_variables()
           output, new_state = cell(inp, states[-1])
-
+          print 'new_state'
+          print new_state
           num_batches = self.args.batch_size # new_state.get_shape()[0].value
-          num_state = new_state.get_shape()[1].value
-
+          #num_state = new_state.get_shape()[1].value
+          num_state = new_state[0].c.get_shape()[1].value
+          
           # if the input has an end-of-character signal, have to zero out the state
 
           #to do:  test this code.
