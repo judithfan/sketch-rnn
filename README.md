@@ -1,5 +1,7 @@
 # sketch-rnn
 
+### Forked from hardmaru/sketch-rnn
+
 Implementation multi-layer recurrent neural network (RNN, LSTM GRU) used to model and generate sketches stored in .svg vector graphic files.  The methodology used is to combine Mixture Density Networks with a RNN, along with modelling dynamic end-of-stroke and end-of-content probabilities learned from a large corpus of similar .svg files, to generate drawings that is simlar to the vector training data.
 
 See my blog post at [blog.otoro.net](http://blog.otoro.net/2015/12/28/recurrent-net-dreams-up-fake-chinese-characters-in-vector-format-with-tensorflow/) for a detailed description on applying `sketch-rnn`  to learn to generate fake Chinese characters in vector format.
