@@ -12,6 +12,7 @@ import random
 
 import svgwrite
 from IPython.display import SVG, display
+from tensorflow.python.framework import ops
 
 # main code (not in a main function since I want to run this script in IPython as well).
 def in_ipython():
@@ -50,13 +51,13 @@ color_mode = True
 if sample_args.color_mode == 0:
   color_mode = False
 
-
+ops.reset_default_graph()
 with open(os.path.join('save', sample_args.dataset_name, 'config.pkl')) as f: # future
   saved_args = cPickle.load(f)
 
 model = Model(saved_args, True)
 sess = tf.InteractiveSession()
-saver = tf.train.Saver(tf.all_variables())
+saver = tf.train.Saver(tf.global_variables())
 
 ckpt = tf.train.get_checkpoint_state(os.path.join('save', sample_args.dataset_name))
 print "loading model: ",ckpt.model_checkpoint_path

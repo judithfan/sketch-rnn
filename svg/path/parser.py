@@ -100,10 +100,13 @@ def parse_path(pathdef, current_pos=0j):
             current_pos = pos
 
         elif command == 'C':
-            control1 = float(elements.pop()) + float(elements.pop()) * 1j
-            control2 = float(elements.pop()) + float(elements.pop()) * 1j
-            end = float(elements.pop()) + float(elements.pop()) * 1j
-
+            try:
+                control1 = float(elements.pop()) + float(elements.pop()) * 1j
+                control2 = float(elements.pop()) + float(elements.pop()) * 1j
+                end = float(elements.pop()) + float(elements.pop()) * 1j
+            except ValueError:
+                print elements
+                
             if not absolute:
                 control1 += current_pos
                 control2 += current_pos

@@ -77,7 +77,9 @@ def train(args):
     for e in xrange(args.num_epochs):
       sess.run(tf.assign(model.lr, args.learning_rate * (args.decay_rate ** e)))
       data_loader.reset_index_pointer()
-      state = model.initial_state.eval()
+      #print('model.initial_state',model.initial_state)      
+      # state = model.initial_state.eval() ## see: https://github.com/hunkim/word-rnn-tensorflow/issues/9
+      state = sess.run(model.initial_state)
       while data_loader.epoch_finished == False:
         start = time.time()
         input_data, target_data = data_loader.next_batch()

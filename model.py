@@ -32,7 +32,7 @@ class Model():
     self.input_data = tf.placeholder(dtype=tf.float32, shape=[args.batch_size, args.seq_length, 5])
     self.target_data = tf.placeholder(dtype=tf.float32, shape=[args.batch_size, args.seq_length, 5])
     self.initial_state = cell.zero_state(batch_size=args.batch_size, dtype=tf.float32)
-
+    
     self.num_mixture = args.num_mixture
     NOUT = 3 + self.num_mixture * 6 # [end_of_stroke + end_of_char, continue_with_stroke] + prob + 2*(mu + sig) + corr
 
@@ -53,7 +53,8 @@ class Model():
       num_col = a.get_shape()[1].value
       assert(num_col == 1)
       result = [a for i in range(repeats)]
-      result = tf.concat(0, result)
+      #result = tf.concat(0, result)
+      result = tf.concat(result,0)
       result = tf.reshape(result, [repeats, num_row])
       result = tf.transpose(result)
       return result
@@ -70,10 +71,7 @@ class Model():
           if i > 0:
             tf.get_variable_scope().reuse_variables()
           output, new_state = cell(inp, states[-1])
-          print 'new_state'
-          print new_state
           num_batches = self.args.batch_size # new_state.get_shape()[0].value
-          #num_state = new_state.get_shape()[1].value
           num_state = new_state[0].c.get_shape()[1].value
           
           # if the input has an end-of-character signal, have to zero out the state
@@ -87,21 +85,26 @@ class Model():
 
           eoc_detection_state = tf.greater(eoc_detection_state, tf.zeros_like(eoc_detection_state, dtype=tf.float32))
 
-          new_state = tf.select(eoc_detection_state, initial_state, new_state)
+          ## commenting this out for now b/c dimensionality mismatch and not sure if end-of-character detection is super urgent
+          #print('eoc_detection_state',eoc_detection_state)
+          #print('initial_state',initial_state)
+          #print('new_state',new_state)
+          #new_state = tf.where(eoc_detection_state, initial_state, new_state)
 
           outputs.append(output)
           states.append(new_state)
       return outputs, states
 
     outputs, states = custom_rnn_autodecoder(inputs, self.initial_input, self.initial_state, cell, scope='rnn_mdn')
-    output = tf.reshape(tf.concat(1, outputs), [-1, args.rnn_size])
+    output = tf.reshape(tf.concat(outputs,1), [-1, args.rnn_size])
     output = tf.nn.xw_plus_b(output, output_w, output_b)
     self.final_state = states[-1]
 
     # reshape target data so that it is compatible with prediction shape
     flat_target_data = tf.reshape(self.target_data,[-1, 5])
-    [x1_data, x2_data, eos_data, eoc_data, cont_data] = tf.split(1, 5, flat_target_data)
-    pen_data = tf.concat(1, [eos_data, eoc_data, cont_data])
+    #[x1_data, x2_data, eos_data, eoc_data, cont_data] = tf.split(1, 5, flat_target_data)
+    [x1_data, x2_data, eos_data, eoc_data, cont_data] = tf.split(flat_target_data, 5, 1)
+    pen_data = tf.concat([eos_data, eoc_data, cont_data],1)
 
     # long method:
     #flat_target_data = tf.split(1, args.seq_length, self.target_data)
@@ -110,13 +113,13 @@ class Model():
 
     def tf_2d_normal(x1, x2, mu1, mu2, s1, s2, rho):
       # eq # 24 and 25 of http://arxiv.org/abs/1308.0850
-      norm1 = tf.sub(x1, mu1)
-      norm2 = tf.sub(x2, mu2)
-      s1s2 = tf.mul(s1, s2)
-      z = tf.square(tf.div(norm1, s1))+tf.square(tf.div(norm2, s2))-2*tf.div(tf.mul(rho, tf.mul(norm1, norm2)), s1s2)
+      norm1 = tf.subtract(x1, mu1)
+      norm2 = tf.subtract(x2, mu2)
+      s1s2 = tf.multiply(s1, s2)
+      z = tf.square(tf.div(norm1, s1))+tf.square(tf.div(norm2, s2))-2*tf.div(tf.multiply(rho, tf.multiply(norm1, norm2)), s1s2)
       negRho = 1-tf.square(rho)
       result = tf.exp(tf.div(-z,2*negRho))
-      denom = 2*np.pi*tf.mul(s1s2, tf.sqrt(negRho))
+      denom = 2*np.pi*tf.multiply(s1s2, tf.sqrt(negRho))
       result = tf.div(result, denom)
       return result
 
@@ -124,14 +127,17 @@ class Model():
       result0 = tf_2d_normal(x1_data, x2_data, z_mu1, z_mu2, z_sigma1, z_sigma2, z_corr)
       # implementing eq # 26 of http://arxiv.org/abs/1308.0850
       epsilon = 1e-20
-      result1 = tf.mul(result0, z_pi)
+      result1 = tf.multiply(result0, z_pi)
       result1 = tf.reduce_sum(result1, 1, keep_dims=True)
       result1 = -tf.log(tf.maximum(result1, 1e-20)) # at the beginning, some errors are exactly zero.
       result_shape = tf.reduce_mean(result1)
-
-      result2 = tf.nn.softmax_cross_entropy_with_logits(z_pen, pen_data)
+      
+      #result2 = tf.nn.softmax_cross_entropy_with_logits(z_pen, pen_data)
+      #print('z_pen',z_pen)
+      #print('pen_data',pen_data)
+      result2 = tf.nn.softmax_cross_entropy_with_logits(logits=z_pen, labels=pen_data)
       pen_data_weighting = pen_data[:, 2]+np.sqrt(self.args.stroke_importance_factor)*pen_data[:, 0]+self.args.stroke_importance_factor*pen_data[:, 1]
-      result2 = tf.mul(result2, pen_data_weighting)
+      result2 = tf.multiply(result2, pen_data_weighting)
       result_pen = tf.reduce_mean(result2)
 
       result = result_shape + result_pen
@@ -143,16 +149,17 @@ class Model():
       # ie, eq 18 -> 23 of http://arxiv.org/abs/1308.0850
       z = output
       z_pen = z[:, 0:3] # end of stroke, end of character/content, continue w/ stroke
-      z_pi, z_mu1, z_mu2, z_sigma1, z_sigma2, z_corr = tf.split(1, 6, z[:, 3:])
+      #z_pi, z_mu1, z_mu2, z_sigma1, z_sigma2, z_corr = tf.split(1, 6, z[:, 3:])
+      z_pi, z_mu1, z_mu2, z_sigma1, z_sigma2, z_corr = tf.split(z[:, 3:], 6, 1)      
 
       # process output z's into MDN paramters
 
       # softmax all the pi's:
       max_pi = tf.reduce_max(z_pi, 1, keep_dims=True)
-      z_pi = tf.sub(z_pi, max_pi)
+      z_pi = tf.subtract(z_pi, max_pi)
       z_pi = tf.exp(z_pi)
-      normalize_pi = tf.inv(tf.reduce_sum(z_pi, 1, keep_dims=True))
-      z_pi = tf.mul(normalize_pi, z_pi)
+      normalize_pi = tf.reciprocal(tf.reduce_sum(z_pi, 1, keep_dims=True))
+      z_pi = tf.multiply(normalize_pi, z_pi)
 
       # exponentiate the sigmas and also make corr between -1 and 1.
       z_sigma1 = tf.exp(z_sigma1)
