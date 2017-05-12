@@ -85,9 +85,9 @@ class Model():
           eoc_detection_state = tfrepeat(eoc_detection, num_state)
           eoc_detection_state = tf.greater(eoc_detection_state, tf.zeros_like(eoc_detection_state, dtype=tf.float32))
 
-          print('eoc_detection_state',eoc_detection_state)
-          print('initial_state',initial_state)
-          print('new_state',new_state)
+          #print('eoc_detection_state',eoc_detection_state)
+          #print('initial_state',initial_state)
+          #print('new_state',new_state)
           # new_state = tf.where(eoc_detection_state, initial_state, new_state)
 
           outputs.append(output)
