@@ -79,6 +79,7 @@ class Model():
           #to do:  test this code.
 
           eoc_detection = inp[:,3]
+          print('eoc_detection',eoc_detection)
           eoc_detection = tf.reshape(eoc_detection, [num_batches, 1])
 
           eoc_detection_state = tfrepeat(eoc_detection, num_state)
