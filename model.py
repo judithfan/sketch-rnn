@@ -79,14 +79,12 @@ class Model():
           #to do:  test this code.
 
           eoc_detection = inp[:,3]
-          print('eoc_detection',eoc_detection)
+          print('inp[:,3]',eoc_detection)
           eoc_detection = tf.reshape(eoc_detection, [num_batches, 1])
 
           eoc_detection_state = tfrepeat(eoc_detection, num_state)
-
           eoc_detection_state = tf.greater(eoc_detection_state, tf.zeros_like(eoc_detection_state, dtype=tf.float32))
 
-          ## commenting this out for now b/c dimensionality mismatch and not sure if end-of-character detection is super urgent
           print('eoc_detection_state',eoc_detection_state)
           print('initial_state',initial_state)
           print('new_state',new_state)
