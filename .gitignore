@@ -90,6 +90,10 @@ ENV/
 
 *.svg
 *.zip
+
 *model.ckpt*
 *.index
 *.meta
+*.ckpt*
+buffer/
+

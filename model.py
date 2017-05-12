@@ -76,20 +76,19 @@ class Model():
           
           # if the input has an end-of-character signal, have to zero out the state
 
-          #to do:  test this code.
+          #to do:  test this code. ## jefan: eoc_detection_state rank does not match that of initial/new_state
 
           eoc_detection = inp[:,3]
+          # print('inp[:,3]',eoc_detection)
           eoc_detection = tf.reshape(eoc_detection, [num_batches, 1])
 
           eoc_detection_state = tfrepeat(eoc_detection, num_state)
-
           eoc_detection_state = tf.greater(eoc_detection_state, tf.zeros_like(eoc_detection_state, dtype=tf.float32))
 
-          ## commenting this out for now b/c dimensionality mismatch and not sure if end-of-character detection is super urgent
-          #print('eoc_detection_state',eoc_detection_state)
-          #print('initial_state',initial_state)
-          #print('new_state',new_state)
-          #new_state = tf.where(eoc_detection_state, initial_state, new_state)
+          print('eoc_detection_state',eoc_detection_state)
+          print('initial_state',initial_state)
+          print('new_state',new_state)
+          # new_state = tf.where(eoc_detection_state, initial_state, new_state)
 
           outputs.append(output)
           states.append(new_state)
@@ -107,9 +106,9 @@ class Model():
     pen_data = tf.concat([eos_data, eoc_data, cont_data],1)
 
     # long method:
-    #flat_target_data = tf.split(1, args.seq_length, self.target_data)
-    #flat_target_data = [tf.squeeze(flat_target_data_, [1]) for flat_target_data_ in flat_target_data]
-    #flat_target_data = tf.reshape(tf.concat(1, flat_target_data), [-1, 3])
+    # flat_target_data = tf.split(1, args.seq_length, self.target_data)
+    # flat_target_data = [tf.squeeze(flat_target_data_, [1]) for flat_target_data_ in flat_target_data]
+    # flat_target_data = tf.reshape(tf.concat(1, flat_target_data), [-1, 3])
 
     def tf_2d_normal(x1, x2, mu1, mu2, s1, s2, rho):
       # eq # 24 and 25 of http://arxiv.org/abs/1308.0850
@@ -132,9 +131,9 @@ class Model():
       result1 = -tf.log(tf.maximum(result1, 1e-20)) # at the beginning, some errors are exactly zero.
       result_shape = tf.reduce_mean(result1)
       
-      #result2 = tf.nn.softmax_cross_entropy_with_logits(z_pen, pen_data)
-      #print('z_pen',z_pen)
-      #print('pen_data',pen_data)
+      # result2 = tf.nn.softmax_cross_entropy_with_logits(z_pen, pen_data)
+      # print('z_pen',z_pen)
+      # print('pen_data',pen_data)
       result2 = tf.nn.softmax_cross_entropy_with_logits(logits=z_pen, labels=pen_data)
       pen_data_weighting = pen_data[:, 2]+np.sqrt(self.args.stroke_importance_factor)*pen_data[:, 0]+self.args.stroke_importance_factor*pen_data[:, 1]
       result2 = tf.multiply(result2, pen_data_weighting)
