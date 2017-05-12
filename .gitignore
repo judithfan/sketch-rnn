@@ -94,3 +94,4 @@ ENV/
 *.ckpt*
 *.index
 *.meta
+buffer/
