@@ -90,3 +90,7 @@ ENV/
 
 *.svg
 *.zip
+
+*.ckpt*
+*.index
+*.meta
