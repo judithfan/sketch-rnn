@@ -1,6 +1,10 @@
 # sketch-rnn
 
-### Forked from hardmaru/sketch-rnn
+## Forked from hardmaru/sketch-rnn
+
+
+Alternative car/furniture sketch training data (svg): https://www.dropbox.com/s/5p52chxrjdfr6c2/car_furniture_sketch_baseline.csv?dl=0
+
 
 Implementation multi-layer recurrent neural network (RNN, LSTM GRU) used to model and generate sketches stored in .svg vector graphic files.  The methodology used is to combine Mixture Density Networks with a RNN, along with modelling dynamic end-of-stroke and end-of-content probabilities learned from a large corpus of similar .svg files, to generate drawings that is simlar to the vector training data.
 
