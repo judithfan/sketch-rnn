@@ -1,0 +1,7 @@
+tensorflow
+numpy
+cairosvg
+svgpathtools
+rdp
+svg.path
+scipy

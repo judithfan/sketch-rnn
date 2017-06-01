@@ -240,17 +240,22 @@ class vgg16:
         keys = sorted(weights.keys())
         keys = keys[:-2]
         for i, k in enumerate(keys):
-            print i, k, np.shape(weights[k])
+            #print i, k, np.shape(weights[k])
             sess.run(self.parameters[i].assign(weights[k]))
 
-if __name__ == '__main__':
+def generate_conv_codes(all_images):
     sess = tf.Session()
     imgs = tf.placeholder(tf.float32, [None, 224, 224, 3])
     vgg = vgg16(imgs, 'vgg16_weights.npz', sess)
+    return sess.run(vgg.fc2l, feed_dict={vgg.imgs: all_images})
 
-    img1 = imread('laska.png', mode='RGB')
-    img1 = imresize(img1, (224, 224))
 
-    conv_codes = sess.run(vgg.fc2l, feed_dict={vgg.imgs: [img1]})
-    print (conv_codes.shape)
-    print (conv_codes)
+# if __name__ == '__main__':
+#     sess = tf.Session()
+#     imgs = tf.placeholder(tf.float32, [None, 224, 224, 3])
+#     vgg = vgg16(imgs, 'vgg16_weights.npz', sess)
+
+#     img1 = imread('laska.png', mode='RGB')
+#     img1 = imresize(img1, (224, 224))
+
+#     conv_codes = sess.run(vgg.fc2l, feed_dict={vgg.imgs: [img1]})
