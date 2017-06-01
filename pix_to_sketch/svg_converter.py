@@ -1,5 +1,5 @@
 import numpy as np
-import cairosvg
+#import cairosvg
 from svgpathtools import svg2paths, Path, Line, wsvg
 from rdp import rdp
 from svg.path import parse_path
@@ -90,7 +90,7 @@ def svg_to_stroke3(filename):
             end = [np.real(point.end)[()], np.imag(point.end)[()]]
             line_segs.append(end)
             line_segs.append(start)
-        rdp_lines.append(rdp(line_segs, epsilon=2.8))
+            rdp_lines.append(rdp(line_segs, epsilon=2.8))
     return lines_to_strokes(rdp_lines)
 
 def stroke3_to_svg(strokes, filename):

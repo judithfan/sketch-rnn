@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 import svg_converter as svg
-import cairosvg
+#import cairosvg
 import pickle
 from scipy.misc import imread, imresize
 import vgg16
@@ -61,6 +61,7 @@ class DataBuilder():
                     img = imresize(img, (224, 224))
                     all_imgs.append(img)
                     lookup_dict[i] = img_name[:-4]
+                print("Length of all imgs:",len(all_imgs))
                 codes = vgg16.generate_conv_codes(all_imgs)
                 all_classes[c] = (codes, lookup_dict)
                 break
