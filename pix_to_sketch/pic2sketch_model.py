@@ -19,7 +19,6 @@ PARAMS = {
 
 class pic2sketch(object):
     def __init__(self, params, path):
-        self.saver = tf.train.Saver()
         self.params = params
         self.epoch_size = params['epoch_size']
         self.batch_size = params['batch_size']
@@ -28,6 +27,7 @@ class pic2sketch(object):
         self.rnn = pix2sketchrnn(params['num_units'], params['max_strokes'],
                                 self.batch_size, params['LR'])
         init = tf.global_variables_initializer()
+        self.saver = tf.train.Saver()
         self.sess.run(init)
         self.train_set, self.dev_set, self.test_set = self.manager.get_full_dataset()
 
@@ -63,8 +63,9 @@ class pic2sketch(object):
             if len(dev_c) == self.batch_size:
                 loss, strokes = self.rnn.test_batch(dev_c, dev_mask, dev_pad, self.sess)
                 total_loss += sum(loss) / float(len(loss))
-                print("Strokes: " + str(strokes[0]))
-                print("Labels: " + str(dev_pad[0]))
+                print("Total loss: " + str(total_loss))
+                #print("Strokes: " + str(strokes[0]))
+                #print("Labels: " + str(dev_pad[0]))
         return total_loss
 
     

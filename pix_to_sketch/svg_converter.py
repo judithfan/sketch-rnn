@@ -1,5 +1,5 @@
 import numpy as np
-import cairosvg
+#import cairosvg
 from svgpathtools import svg2paths, Path, Line, wsvg
 from rdp import rdp
 from svg.path import parse_path

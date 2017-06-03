@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 import svg_converter as svg
-import cairosvg
+#import cairosvg
 import pickle
 from scipy.misc import imread, imresize
 import vgg16
